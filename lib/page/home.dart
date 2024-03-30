@@ -60,6 +60,9 @@ class _HomeState extends State<Home> {
         String? coverStr;
         if (metadata.pictures.isNotEmpty) {
           coverStr = base64Encode(metadata.pictures[0].bytes);
+          if (coverStr.length > 90000) {
+            coverStr = "Unkonwn";
+          }
         }
         final s = Song.optional(
             name: metadata.title ?? p.basename(file.path!),

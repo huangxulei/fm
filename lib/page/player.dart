@@ -31,7 +31,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   bool sleepTimer = false;
   int sleepTimerSeconds = 0;
   Timer? sleepTimerTimer;
-
+  String nowPlayingCover = "Unknown";
   @override
   void didUpdateWidget(covariant PlayerWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -50,28 +50,14 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       player.stream.playlist.listen((event) {
         setState(() {
           nowPlayingName = widget.allSongs[player.state.playlist.index].name;
-          print(widget.allSongs[player.state.playlist.index].name);
           nowPlayingArtist =
               widget.allSongs[player.state.playlist.index].artist!;
           nowPlayingAlbum = widget.allSongs[player.state.playlist.index].album!;
+          nowPlayingCover = widget.allSongs[player.state.playlist.index].cover!;
+          print('${nowPlayingName} 的图片长度: ${nowPlayingCover.length}');
         });
       });
     }
-  }
-
-  void setSleepTimer(int seconds) {
-    sleepTimer = true;
-    sleepTimerSeconds = seconds;
-    sleepTimerTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (sleepTimerSeconds == 0) {
-        player.pause();
-        sleepTimerTimer?.cancel();
-        sleepTimer = false;
-      } else {
-        sleepTimerSeconds--;
-      }
-      setState(() {});
-    });
   }
 
   String padWithZero(int number) {
@@ -107,7 +93,11 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final String curStr = widget.nowPlaying?.cover ?? "Unkonwn";
+    final Map<String, String> modeParse = {
+      "none": "顺序播放",
+      "single": "单曲循环",
+      "loop": "循环播放"
+    };
     return Container(
       padding: const EdgeInsets.all(10),
       child: Column(
@@ -122,28 +112,26 @@ class _PlayerWidgetState extends State<PlayerWidget> {
               position = Duration(
                   milliseconds: position.inMilliseconds
                       .clamp(0, player.state.duration.inMilliseconds));
-
               return Card(
                   child: Container(
-                      padding: EdgeInsets.only(
+                      padding: const EdgeInsets.only(
                           left: 10.0, right: 10.0, top: 5.0, bottom: 5.0),
                       child: Row(children: <Widget>[
                         Container(
-                          margin: const EdgeInsets.all(5.0),
-                          child: curStr != "Unkonwn"
-                              ? Image.memory(
-                                  base64Decode(curStr),
-                                  height: 100,
-                                  width: 100,
-                                  fit: BoxFit.cover,
-                                  gaplessPlayback: true,
-                                )
-                              : const ImagePlaceHolder(
-                                  height: 100,
-                                  width: 100,
-                                  error: true,
-                                ),
-                        ),
+                            margin: const EdgeInsets.all(5.0),
+                            child: nowPlayingCover.length == 7
+                                ? const ImagePlaceHolder(
+                                    height: 100,
+                                    width: 100,
+                                    error: true,
+                                  )
+                                : Image.memory(
+                                    base64Decode(nowPlayingCover),
+                                    height: 100,
+                                    width: 100,
+                                    fit: BoxFit.cover,
+                                    gaplessPlayback: true,
+                                  )),
                         Expanded(
                             child: Column(
                           children: [
@@ -153,12 +141,22 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(nowPlayingName,
-                                        style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold)),
-                                    Text("$nowPlayingArtist - $nowPlayingAlbum",
-                                        style: const TextStyle(fontSize: 13)),
+                                    SizedBox(
+                                        width: 150, //
+                                        child: Text(nowPlayingName,
+                                            // 文本居中
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                                fontSize: 18,
+                                                fontWeight: FontWeight.bold))),
+                                    SizedBox(
+                                        width: 150, //
+                                        child: Text(
+                                            "$nowPlayingArtist - $nowPlayingAlbum",
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 13,
+                                            ))),
                                   ],
                                 ),
                                 Expanded(
@@ -272,32 +270,35 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                                         stream: player.stream.playlistMode,
                                         builder: (context, snapshot) {
                                           return IconButton(
-                                              onPressed: () {
-                                                if (player.state.playlistMode ==
-                                                    PlaylistMode.loop) {
-                                                  player.setPlaylistMode(
-                                                      PlaylistMode.single);
-                                                } else if (player
-                                                        .state.playlistMode ==
-                                                    PlaylistMode.single) {
-                                                  player.setPlaylistMode(
-                                                      PlaylistMode.none);
-                                                } else {
-                                                  player.setPlaylistMode(
-                                                      PlaylistMode.loop);
-                                                }
-                                                setState(() {});
-                                              },
-                                              icon: player.state.playlistMode ==
-                                                      PlaylistMode.loop
-                                                  ? const Icon(Icons.repeat)
-                                                  : player.state.playlistMode ==
-                                                          PlaylistMode.single
-                                                      ? const Icon(
-                                                          Icons.repeat_one)
-                                                      : const Icon(
-                                                          Icons.playlist_play,
-                                                        ));
+                                            onPressed: () {
+                                              if (player.state.playlistMode ==
+                                                  PlaylistMode.loop) {
+                                                player.setPlaylistMode(
+                                                    PlaylistMode.single);
+                                              } else if (player
+                                                      .state.playlistMode ==
+                                                  PlaylistMode.single) {
+                                                player.setPlaylistMode(
+                                                    PlaylistMode.none);
+                                              } else {
+                                                player.setPlaylistMode(
+                                                    PlaylistMode.loop);
+                                              }
+                                              setState(() {});
+                                            },
+                                            icon: player.state.playlistMode ==
+                                                    PlaylistMode.loop
+                                                ? const Icon(Icons.repeat)
+                                                : player.state.playlistMode ==
+                                                        PlaylistMode.single
+                                                    ? const Icon(
+                                                        Icons.repeat_one)
+                                                    : const Icon(
+                                                        Icons.playlist_play,
+                                                      ),
+                                            tooltip: modeParse[
+                                                player.state.playlistMode.name],
+                                          );
                                         }),
                                   ],
                                 ),
