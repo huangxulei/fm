@@ -48,14 +48,13 @@ class _MyAppState extends State<MyApp> {
     switch (initFlag) {
       case InitFlag.ok:
         return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Audio Player',
-          routes: {
-            '/settings': (context) => const Settings(),
-            '/home': (context) => const Home(),
-          },
-          home: const Home(),
-        );
+            debugShowCheckedModeBanner: false,
+            title: 'Audio Player',
+            routes: {
+              '/settings': (context) => const Settings(),
+              '/home': (context) => const Home(),
+            },
+            home: const Scaffold(body: Home()));
       case InitFlag.error:
         return MaterialApp(
           darkTheme: ThemeData.dark(),

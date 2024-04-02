@@ -13,6 +13,9 @@ abstract class SongDao {
   @Query('SELECT * FROM Song WHERE id = :id')
   Stream<Song?> findSongById(int id);
 
+  @Query('DELETE FROM Song')
+  Future<void> clearAllSong();
+
   @insert
   Future<void> insertSong(Song song);
 

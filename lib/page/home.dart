@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:audio_metadata_reader/audio_metadata_reader.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:media_kit/ffi/ffi.dart';
 import 'package:path/path.dart' as p;
 
 import '../database/song.dart';
@@ -19,7 +20,10 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<Song> allSongs = []; //歌曲列表
-  Song? nowPlaying;
+  Song nowPlaying =
+      Song(0, 'No song playing', "Unknown", "Unknown", "Unknown", "Unknown");
+  // Song nowPlaying = nullSong;
+
   bool batchEdit = false;
   Map<String, bool> selectedFiles = {}; //选择文件
   bool currentlyDownloading = false;
@@ -53,8 +57,6 @@ class _HomeState extends State<Home> {
       if (value == null) return;
       final files = value.files;
       for (final file in files) {
-        // final path = file.path!;
-        // Metadata metadata = await MetadataGod.readMetadata(file: path);
         final track = File(file.path!);
         final metadata = await readMetadata(track, getImage: true);
         String? coverStr;
@@ -75,6 +77,15 @@ class _HomeState extends State<Home> {
         setState(() {});
       }
     });
+  }
+
+  Future<void> cleanFile() async {
+    await Global.songDao?.clearAllSong();
+    updatePlaylist();
+    allSongs = [];
+    nowPlaying =
+        Song(0, 'No song playing', "Unknown", "Unknown", "Unknown", "Unknown");
+    setState(() {});
   }
 
   @override
@@ -99,6 +110,11 @@ class _HomeState extends State<Home> {
             icon: const Icon(Icons.add),
             onPressed: addFile, //添加歌曲
             tooltip: '添加歌曲',
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: cleanFile, //删除列表
+            tooltip: '清空列表',
           ),
         ]),
       ),

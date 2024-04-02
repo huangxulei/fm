@@ -191,6 +191,11 @@ class _$SongDao extends SongDao {
   }
 
   @override
+  Future<void> clearAllSong() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM Song');
+  }
+
+  @override
   Future<void> insertSong(Song song) async {
     await _songInsertionAdapter.insert(song, OnConflictStrategy.abort);
   }

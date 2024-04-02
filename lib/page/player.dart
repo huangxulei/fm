@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fm/page/image_place_holder.dart';
@@ -10,7 +12,7 @@ import '../database/song.dart';
 
 class PlayerWidget extends StatefulWidget {
   final List<Song> allSongs;
-  final Song? nowPlaying;
+  final Song nowPlaying;
 
   const PlayerWidget({
     required this.allSongs,
@@ -28,10 +30,12 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   String nowPlayingName = 'No song playing';
   String nowPlayingArtist = "Unknown";
   String nowPlayingAlbum = "Unknown";
+  String nowPlayingCover = "Unknown";
+
   bool sleepTimer = false;
   int sleepTimerSeconds = 0;
   Timer? sleepTimerTimer;
-  String nowPlayingCover = "Unknown";
+
   @override
   void didUpdateWidget(covariant PlayerWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -54,7 +58,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
               widget.allSongs[player.state.playlist.index].artist!;
           nowPlayingAlbum = widget.allSongs[player.state.playlist.index].album!;
           nowPlayingCover = widget.allSongs[player.state.playlist.index].cover!;
-          print('${nowPlayingName} 的图片长度: ${nowPlayingCover.length}');
         });
       });
     }
@@ -98,6 +101,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       "single": "单曲循环",
       "loop": "循环播放"
     };
+    nowPlayingName = widget.nowPlaying.name;
+    nowPlayingArtist = widget.nowPlaying.artist!;
+    nowPlayingAlbum = widget.nowPlaying.album!;
+    nowPlayingCover = widget.nowPlaying.cover!;
     return Container(
       padding: const EdgeInsets.all(10),
       child: Column(
