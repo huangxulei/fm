@@ -22,11 +22,7 @@ class _HomeState extends State<Home> {
   List<Song> allSongs = []; //歌曲列表
   Song nowPlaying =
       Song(0, 'No song playing', "Unknown", "Unknown", "Unknown", "Unknown");
-  // Song nowPlaying = nullSong;
-
-  bool batchEdit = false;
   Map<String, bool> selectedFiles = {}; //选择文件
-  bool currentlyDownloading = false;
 
   @override
   void initState() {

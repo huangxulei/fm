@@ -26,15 +26,10 @@ class PlayerWidget extends StatefulWidget {
 
 class _PlayerWidgetState extends State<PlayerWidget> {
   late final player = Player();
-  bool isShuffle = false;
   String nowPlayingName = 'No song playing';
   String nowPlayingArtist = "Unknown";
   String nowPlayingAlbum = "Unknown";
   String nowPlayingCover = "Unknown";
-
-  bool sleepTimer = false;
-  int sleepTimerSeconds = 0;
-  Timer? sleepTimerTimer;
 
   @override
   void didUpdateWidget(covariant PlayerWidget oldWidget) {
@@ -102,10 +97,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       "single": "单曲循环",
       "loop": "循环播放"
     };
-    nowPlayingName = widget.nowPlaying.name;
-    nowPlayingArtist = widget.nowPlaying.artist!;
-    nowPlayingAlbum = widget.nowPlaying.album!;
-    nowPlayingCover = widget.nowPlaying.cover!;
+
     return Container(
       padding: const EdgeInsets.all(10),
       child: Column(
@@ -125,18 +117,19 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                       padding: const EdgeInsets.only(
                           left: 10.0, right: 10.0, top: 5.0, bottom: 5.0),
                       child: Row(children: <Widget>[
+                        //封面显示
                         Container(
                             margin: const EdgeInsets.all(5.0),
                             child: nowPlayingCover.length == 7
                                 ? const ImagePlaceHolder(
-                                    height: 100,
-                                    width: 100,
+                                    height: 150,
+                                    width: 150,
                                     error: true,
                                   )
                                 : Image.memory(
                                     base64Decode(nowPlayingCover),
-                                    height: 100,
-                                    width: 100,
+                                    height: 150,
+                                    width: 150,
                                     fit: BoxFit.cover,
                                     gaplessPlayback: true,
                                   )),
@@ -146,11 +139,11 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                             Row(
                               children: [
                                 const SizedBox(width: 10),
-                                Column(
+                                Expanded(
+                                    child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     SizedBox(
-                                        width: 150, //
                                         child: Text(nowPlayingName,
                                             // 文本居中
                                             overflow: TextOverflow.ellipsis,
@@ -166,81 +159,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                                               fontSize: 13,
                                             ))),
                                   ],
-                                ),
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      const SizedBox(width: 20),
-                                      Text(formatDuration(position)),
-                                      Expanded(
-                                        child: Slider(
-                                          value: position.inMilliseconds
-                                              .toDouble(),
-                                          max: player
-                                              .state.duration.inMilliseconds
-                                              .toDouble(),
-                                          onChanged: (value) {},
-                                          onChangeEnd: (value) {
-                                            player.seek(Duration(
-                                                milliseconds: value.toInt()));
-                                            setState(() {});
-                                          },
-                                        ),
-                                      ),
-                                      Text(formatDuration(
-                                          player.state.duration)),
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
-                            const SizedBox(height: 5),
-                            //进度条
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                //上下曲
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.skip_previous),
-                                      onPressed: () {
-                                        player.previous();
-                                        setState(() {});
-                                      },
-                                    ),
-                                    StreamBuilder(
-                                        stream: player.stream.playing,
-                                        builder: (context, snapshot) {
-                                          return IconButton(
-                                            icon: Icon(
-                                              player.state.playing
-                                                  ? Icons.pause
-                                                  : Icons.play_arrow,
-                                              size: 45,
-                                            ),
-                                            onPressed: () {
-                                              // Toggle play/pause functionality
-                                              if (player.state.playing) {
-                                                player.pause();
-                                              } else {
-                                                player.play();
-                                              }
-                                              setState(() {});
-                                            },
-                                          );
-                                        }),
-                                    IconButton(
-                                      icon: const Icon(Icons.skip_next),
-                                      onPressed: () {
-                                        player.next();
-                                        setState(() {});
-                                      },
-                                    ),
-                                  ],
-                                ),
-
+                                )),
                                 //声音
                                 Row(
                                   children: [
@@ -268,6 +187,57 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                                             : Icons.volume_up)),
                                   ],
                                 ),
+                              ],
+                            ),
+                            const SizedBox(height: 5),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                //上下曲
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      icon: const Icon(Icons.skip_previous),
+                                      onPressed: () {
+                                        player.previous();
+                                        setState(() {});
+                                      },
+                                    ),
+                                    StreamBuilder(
+                                        stream: player.stream.playing,
+                                        builder: (context, snapshot) {
+                                          return IconButton(
+                                            icon: Icon(
+                                              player.state.playing
+                                                  ? Icons.pause
+                                                  : Icons.play_arrow,
+                                              size: 50,
+                                            ),
+                                            onPressed: () {
+                                              // Toggle play/pause functionality
+                                              if (player.state.playing) {
+                                                player.pause();
+                                              } else {
+                                                player.play();
+                                              }
+                                              setState(() {});
+                                            },
+                                          );
+                                        }),
+                                    IconButton(
+                                      icon: const Icon(Icons.skip_next),
+                                      onPressed: () {
+                                        player.next();
+                                        print(widget
+                                            .allSongs[
+                                                player.state.playlist.index + 1]
+                                            .name);
+                                        setState(() {});
+                                      },
+                                    ),
+                                  ],
+                                ),
+
                                 // 播放模式
                                 Row(
                                   mainAxisAlignment:
@@ -312,6 +282,26 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                                 ),
                               ],
                             ),
+                            Row(
+                              children: [
+                                const SizedBox(width: 20),
+                                Text(formatDuration(position)),
+                                Expanded(
+                                  child: Slider(
+                                    value: position.inMilliseconds.toDouble(),
+                                    max: player.state.duration.inMilliseconds
+                                        .toDouble(),
+                                    onChanged: (value) {},
+                                    onChangeEnd: (value) {
+                                      player.seek(Duration(
+                                          milliseconds: value.toInt()));
+                                      setState(() {});
+                                    },
+                                  ),
+                                ),
+                                Text(formatDuration(player.state.duration)),
+                              ],
+                            ),
                           ],
                         ))
                       ])));
@@ -321,4 +311,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       ),
     );
   }
+
+  changSonginfo() {}
 }
