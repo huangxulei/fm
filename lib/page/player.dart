@@ -46,6 +46,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       );
 
       player.open(playlist, play: true);
+      player.setPlaylistMode(PlaylistMode.loop);
       player.play();
       player.stream.playlist.listen((event) {
         setState(() {
@@ -122,14 +123,14 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                             margin: const EdgeInsets.all(5.0),
                             child: nowPlayingCover.length == 7
                                 ? const ImagePlaceHolder(
-                                    height: 150,
-                                    width: 150,
+                                    height: 100,
+                                    width: 100,
                                     error: true,
                                   )
                                 : Image.memory(
                                     base64Decode(nowPlayingCover),
-                                    height: 150,
-                                    width: 150,
+                                    height: 100,
+                                    width: 100,
                                     fit: BoxFit.cover,
                                     gaplessPlayback: true,
                                   )),
@@ -284,7 +285,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                             ),
                             Row(
                               children: [
-                                const SizedBox(width: 20),
                                 Text(formatDuration(position)),
                                 Expanded(
                                   child: Slider(
