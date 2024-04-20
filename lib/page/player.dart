@@ -40,12 +40,13 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   void didUpdateWidget(covariant PlayerWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.nowPlaying != widget.nowPlaying) {
+      print("didUpdateWidget");
       Playlist playlist = Playlist(
         widget.allSongs
             .map((e) => Media(e.path, extras: {'title': e.name}))
             .toList(),
         index: widget.allSongs.indexWhere(
-          (element) => element.path == widget.nowPlaying?.path,
+          (element) => element.path == widget.nowPlaying.path,
         ),
       );
 
